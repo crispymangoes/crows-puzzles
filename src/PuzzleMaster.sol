@@ -38,7 +38,7 @@ contract PuzzleMaster is Ownable{
         if(prizeAmount > 0){
             delete prizes[prizeHash];
             activePrizes.remove(prizeHash);
-            prizeToken.transfer(msg.sender, prizeAmount);
+            prizeToken.safeTransfer(msg.sender, prizeAmount);
         }
         else revert PuzzleMaster__NoPrize();
     }
@@ -54,7 +54,7 @@ contract PuzzleMaster is Ownable{
         uint256 prizeAmount = prizes[prizeHash];
         delete prizes[prizeHash];
         activePrizes.remove(prizeHash);
-        prizeToken.transferFrom(address(this), msg.sender, prizeAmount);
+        prizeToken.safeTransfer(msg.sender, prizeAmount);
     }
 
     function changeRoot(bytes32 newRoot) external onlyOwner{
@@ -62,7 +62,7 @@ contract PuzzleMaster is Ownable{
     }
 
     function shutdown() external onlyOwner{
-        prizeToken.transferFrom(address(this), msg.sender, prizeToken.balanceOf(address(this)));
+        prizeToken.safeTransfer(msg.sender, prizeToken.balanceOf(address(this)));
         selfdestruct(payable(msg.sender));
     }
 
