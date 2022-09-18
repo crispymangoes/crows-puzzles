@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 import { PuzzleMaster } from "src/PuzzleMaster.sol";
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-import "forge-std/Script.sol";
+import "@forge-std/Script.sol";
 
 contract PuzzleMasterScript is Script {
 
