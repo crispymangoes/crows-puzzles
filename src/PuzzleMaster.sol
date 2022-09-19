@@ -30,8 +30,9 @@ contract PuzzleMaster is Ownable{
 
     function claimPrize(bytes32[] memory proof, bytes32 leaf, string memory guess) external {
         // Skip merkle proof check if root is zero.
-        if (leaf != keccak256(abi.encodePacked(msg.sender))) revert PuzzleMaster__InvalidProof();
-        if(root != bytes32(0) && !MerkleProof.verify(proof, root, leaf)) revert PuzzleMaster__InvalidProof();
+        if (root != bytes32(0)) {
+            if (leaf != keccak256(abi.encodePacked(msg.sender)) || !MerkleProof.verify(proof, root, leaf)) revert PuzzleMaster__InvalidProof();
+        }
 
         bytes32 prizeHash = keccak256(abi.encode(guess));
         uint256 prizeAmount = prizes[prizeHash];
