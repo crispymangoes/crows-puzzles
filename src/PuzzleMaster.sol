@@ -28,6 +28,9 @@ contract PuzzleMaster is Ownable{
 
     error PuzzleMaster__PrizeAlreadySet();
 
+    /**
+     * @notice allows users to claim prizes if they can prove their address is in the merkle tree.
+     */
     function claimPrize(bytes32[] memory proof, bytes32 leaf, string memory guess) external {
         // Skip merkle proof check if root is zero.
         if (root != bytes32(0)) {

@@ -9,14 +9,14 @@ import { Test, console } from "@forge-std/Test.sol";
 contract PuzzleMasterTest is Test {
 
     ERC20 private WETH = ERC20(0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619);
-    bytes32 public root;
     PuzzleMaster private master;
 
     address public alice = vm.addr(1);
     address public bob = vm.addr(2);
 
     function setUp() public {
-        master = new PuzzleMaster(root, WETH);
+        bytes32 zeroRoot;
+        master = new PuzzleMaster(zeroRoot, WETH);
     }
 
     function _addPrize(uint256 amount, string memory guess) internal {
@@ -26,7 +26,7 @@ contract PuzzleMasterTest is Test {
         master.addPrize(prizeHash, amount);
     }
 
-    function _createMerkleTree(address userA, address userB) internal returns(bytes32 root, bytes32 leafA, bytes32 leafB) {
+    function _createMerkleTree(address userA, address userB) internal pure returns(bytes32 root, bytes32 leafA, bytes32 leafB) {
         /**
          *            root
          *            / \
@@ -39,7 +39,7 @@ contract PuzzleMasterTest is Test {
         root = keccak256(abi.encodePacked(leafA, leafB));
     }
 
-    uint256 saltIndex;
+    uint256 private saltIndex;
     function _mutate(uint256 salt) internal returns (uint256) {
         saltIndex++;
         uint256 random = uint256(keccak256(abi.encode(salt, saltIndex)));
@@ -114,8 +114,12 @@ contract PuzzleMasterTest is Test {
         string memory guess = "1";
         _addPrize(amount, guess);
 
-        assertEq(WETH.balanceOf(address(master)), amount, "Puzzle master should have `amount` of WETH.");
+        // Adding an existing prize should revert.
         bytes32 prizeHash = master.getHash(guess);
+        vm.expectRevert(abi.encodeWithSelector(PuzzleMaster.PuzzleMaster__PrizeAlreadySet.selector));
+        master.addPrize(prizeHash, amount);
+
+        assertEq(WETH.balanceOf(address(master)), amount, "Puzzle master should have `amount` of WETH.");
         assertEq(master.prizes(prizeHash), amount, "Prize should have been recorded in Puzzle Master.");
         (bytes32[] memory allPrizes, uint256[] memory amounts) = master.getActivePrizes();
         assertEq(allPrizes[0], prizeHash, "Prize hash should be in set.");
